@@ -13,20 +13,28 @@ import java.util.Locale
 
 internal class MyDatabaseHelper(private val context: Context?) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
-    override fun onCreate(db: SQLiteDatabase) {
+
+    // Create the table when the database is created
+        override fun onCreate(db: SQLiteDatabase) {
+        // SQL query to create the table
         val query = "CREATE TABLE " + TABLE_NAME +
                 " (" + COLUMN_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 COLUMN_TITLE + " TEXT, " +
                 COLUMN_DESCRIPTION + " TEXT, " +
                 COLUMN_DATE + " DATE);"
+        // Execute the query
         db.execSQL(query)
     }
 
+    // Upgrade the database if needed
     override fun onUpgrade(db: SQLiteDatabase, i: Int, i1: Int) {
+        // Drop the table if it exists
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME)
+        // Recreate the table
         onCreate(db)
     }
 
+    // Add a task to the database
     fun addTask(title: String?, description: String?, date: Date) {
         val db = this.writableDatabase
         val cv = ContentValues()
@@ -49,6 +57,7 @@ internal class MyDatabaseHelper(private val context: Context?) :
     }
 
 
+    // Read all data from the database
     fun readAllData(): Cursor? {
         val query = "SELECT * FROM " + TABLE_NAME
         val db = this.readableDatabase
@@ -60,6 +69,7 @@ internal class MyDatabaseHelper(private val context: Context?) :
         return cursor
     }
 
+    // Update data in the database
     fun updateData(row_id: String, title: String?, description: String?, date: Date?) {
         val db = this.writableDatabase
         val cv = ContentValues()
@@ -76,6 +86,7 @@ internal class MyDatabaseHelper(private val context: Context?) :
         }
     }
 
+    // Delete a specific row from the database
     fun deleteOneRow(row_id: String) {
         val db = this.writableDatabase
         val result = db.delete(TABLE_NAME, "_id=?", arrayOf(row_id)).toLong()
@@ -92,9 +103,11 @@ internal class MyDatabaseHelper(private val context: Context?) :
     }
 
     companion object {
+        // Database name and version
         private const val DATABASE_NAME = "TaskManager.db"
         private const val DATABASE_VERSION = 1
 
+        // Table name and column names
         private const val TABLE_NAME = "task_list"
         private const val COLUMN_ID = "_id"
         private const val COLUMN_TITLE = "task_title"

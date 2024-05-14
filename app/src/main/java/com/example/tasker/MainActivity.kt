@@ -16,12 +16,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 
 class MainActivity : AppCompatActivity() {
+    // Declare UI elements
     private lateinit var recyclerView: RecyclerView
     private lateinit var add_button: FloatingActionButton
     private lateinit var empty_imageview: ImageView
     private lateinit var no_data: TextView
 
+    // Declare database helper
     private lateinit var myDB: MyDatabaseHelper
+
+    // Initialize arrays to store task data
     var task_id: ArrayList<String>? = null
     var task_title: ArrayList<String>? = null
     var task_description: ArrayList<String>? = null
@@ -32,10 +36,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        // Initialize UI elements
         recyclerView = findViewById<RecyclerView>(R.id.recyclerView)
         add_button = findViewById<FloatingActionButton>(R.id.add_button)
         empty_imageview = findViewById<ImageView>(R.id.empty_imageview)
         no_data = findViewById<TextView>(R.id.no_data)
+
+        // Set OnClickListener for add_button to open AddActivity
         add_button.setOnClickListener(View.OnClickListener {
             val intent = Intent(
                 this@MainActivity,
@@ -44,14 +51,17 @@ class MainActivity : AppCompatActivity() {
             startActivity(intent)
         })
 
+        // Initialize database helper and arrays
         myDB = MyDatabaseHelper(this@MainActivity)
         task_id = ArrayList()
         task_title = ArrayList()
         task_description = ArrayList()
         task_date = ArrayList()
 
+        // Populate arrays with data from the database
         storeDataInArrays()
 
+        // Initialize and set the adapter for the RecyclerView
         customAdapter = CustomAdapter(
             this@MainActivity, this, task_id!!, task_title!!, task_description!!,
             task_date!!
@@ -67,12 +77,15 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Populate arrays with data from the database
     fun storeDataInArrays() {
         val cursor: Cursor? = myDB.readAllData()
         if (cursor?.count == 0) {
+            // If there is no data in the database, show empty view
             empty_imageview!!.visibility = View.VISIBLE
             no_data!!.visibility = View.VISIBLE
         } else {
+            // If there is data in the database, populate arrays with data and hide empty view
             while (cursor?.moveToNext()==true) {
                 task_id!!.add(cursor.getString(0))
                 task_title!!.add(cursor.getString(1))
@@ -84,12 +97,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Create options menu (for deleting all data)
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         val inflater = menuInflater
         inflater.inflate(R.menu.my_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
 
+    // Handle options menu item selection (delete all data)
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == R.id.delete_all) {
             confirmDialog()
@@ -97,7 +112,8 @@ class MainActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
-    fun confirmDialog() {
+    // Show confirmation dialog for deleting all data
+    private fun confirmDialog() {
         val builder = AlertDialog.Builder(this)
         builder.setTitle("Delete All?")
         builder.setMessage("Are you sure you want to delete all Data?")
